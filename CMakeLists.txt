@@ -88,6 +88,6 @@ add_subdirectory(external/ArduiPi_OLED arduiPi_OLED)
 
 	
 add_subdirectory(ttuilite)
-add_subdirectory(sidekick)
-add_subdirectory(pd)
+#add_subdirectory(sidekick)
+#add_subdirectory(pd)
 

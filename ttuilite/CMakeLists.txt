@@ -30,7 +30,7 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     target_link_libraries(ttuilite atomic)
 endif ()
 
-target_link_libraries(ttuilite "dl" "pthread" ${LIBCAIRO})
+target_link_libraries(ttuilite "dl" "pthread" arduiPi_OLED)
 
 target_include_directories(ttuilite PUBLIC
         .

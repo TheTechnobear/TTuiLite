@@ -15,9 +15,6 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 
-#include "ArduiPi_OLED_lib.h"
-#include "Adafruit_GFX.h"
-#include "ArduiPi_OLED.h"
 
 
 // gpio
@@ -31,8 +28,12 @@
 #include <sys/poll.h>
 #include <sys/stat.h>
 
+#include "ArduiPi_OLED_lib.h"
+#include "Adafruit_GFX.h"
+#include "ArduiPi_OLED.h"
 
-//#include <readerwriterqueue.h>
+#include <algorithm>
+#include <readerwriterqueue.h>
 
 
 #ifndef SCREEN_X
@@ -70,9 +71,9 @@ public:
     unsigned numButtons();
 
 
-    void displayClear();
     void displayPaint();
 
+    void displayClear(unsigned d);
     // text functions 
     void displayText(unsigned d, unsigned clr, unsigned line, unsigned col, const std::string &str);
     void clearText(unsigned d, unsigned clr, unsigned line);
@@ -169,7 +170,7 @@ void TTuiDevice::clearText(unsigned d, unsigned clr, unsigned line) {
     impl_->clearText(d, clr, line);
 }
 
-void TTuiDevice::drawBitMap(unsigned d, unsigned x, unsigned y, const char *filename) {
+void TTuiDevice::drawBitmap(unsigned d, unsigned x, unsigned y, const char *filename) {
     impl_->drawBitmap(d, x, y, filename);
 }
 
@@ -254,10 +255,10 @@ unsigned TTuiDeviceImpl_::numButtons() {
 //// display functions
 
 void TTuiDeviceImpl_::displayPaint() {
-    for(int i=0;i<2;i++) {
-        auto& display_=display_[i];
-        if(dirty_[i]) display.display();
-        dirty_[i] = false;
+    for(int d=0;d<2;d++) {
+        auto& display=display_[d];
+        if(dirty_[d]) display.display();
+        dirty_[d] = false;
     }
 }
 
@@ -265,17 +266,18 @@ void TTuiDeviceImpl_::clearRect(unsigned d, unsigned clr, unsigned x, unsigned y
     if(d>MAX_DISPLAYS) return;
     uint16_t colour =  (clr > 0 ? WHITE : BLACK);
     auto& display=display_[d];
-    display.fillRect(x,y,w,h,colour)
+    display.fillRect(x,y,w,h,colour);
     dirty_[d] = true;
 }
 
 
-void TTuiDeviceImpl_::drawText(unsigned clr, unsigned x, unsigned y, const std::string &str) {
+void TTuiDeviceImpl_::drawText(unsigned d,unsigned clr, unsigned x, unsigned y, const std::string &str) {
     if(d>MAX_DISPLAYS) return;
     auto& display=display_[d];
     uint16_t colour =  (clr > 0 ? WHITE : BLACK);
 
     uint16_t bg = (clr==WHITE ? BLACK : WHITE );
+    display.setCursor(x,y);
     display.setTextColor(colour, bg );
     display.setTextSize(1);
     display.setTextWrap(false);
@@ -284,7 +286,7 @@ void TTuiDeviceImpl_::drawText(unsigned clr, unsigned x, unsigned y, const std::
 }
 
 
-void TTuiDeviceImpl_::displayClear() {
+void TTuiDeviceImpl_::displayClear(unsigned d) {
     if(d>MAX_DISPLAYS) return;
     auto& display=display_[d];
     display.clearDisplay();
@@ -338,14 +340,19 @@ void TTuiDeviceImpl_::drawBitmap(unsigned d,unsigned x, unsigned y, const char *
     int idx=0;
     for(int i=0;i<3;i++) {
         while(data[idx]!='\n' && idx<file_size_in_byte) {
-            idx++
+            idx++;
         }
+	idx++;
         if(idx>=file_size_in_byte) {
             return;
         }
     }
-    bitmap = &data[idx];
-    if(bitmap!=nullptr) display.drawBitMap(x,y,bitmap,img_w,img_h,WHITE)
+    //bitmap = static_cast<uint8_t*>(&data[idx]);
+    for(int i=idx;i<file_size_in_byte;i++) {
+	    data[i]=~data[i];
+    }
+    bitmap = (uint8_t*) (&data[idx]);
+    if(bitmap!=nullptr) display.drawBitmap(x,y,bitmap,img_w,img_h,WHITE);
     dirty_[d] = true;
 }
 
@@ -420,27 +427,29 @@ void TTuiDeviceImpl_::deinitGPIO() {
 
 void TTuiDeviceImpl_::initDisplay() {
 
-    if(! display_[0].init(OLED_I2C_RESET,6,(uint8_t) 60 )) {
-        fprint("unable to open display 0")
-    }
 
-    if(! display_[1].init(OLED_I2C_RESET,6,(uint8_t) 61 )) {
-        fprint("unable to open display 0")
+    if(! display_[0].init(OLED_I2C_RESET,OLED_SH1106_I2C_128x64,(uint8_t) 60 )) {
+        fprintf(stderr,"unable to open display 0");
     }
+    display_[0].begin();
+    displayClear(0);
+    display_[0].display();
 
-    for(int d=0;d<2;i++) {
-        auto& display=display_[d];
-        display.begin();
-        display.clearDisplay();
-        display.display();
-        dirty_[d] = true;
+    if( ! display_[1].init(OLED_I2C_RESET,OLED_SH1106_I2C_128x64, (uint8_t) 61 )) {
+        fprintf(stderr,"unable to open display 1");
     }
+    display_[1].begin();
+    displayClear(1);
+    display_[1].display();
+  
+
+    dirty_[0]=false; dirty_[1]=false;
 }
 
 void TTuiDeviceImpl_::deinitDisplay() {
-    for(int d=0;d<2;i++) {
+    for(int d=0;d<2;d++) {
         auto& display=display_[d];
-        display_[i].close();
+        display.close();
     }
 }
 
