@@ -84,8 +84,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release/bin)
 ############
 add_subdirectory(external/moodycamel moodycamel)
 add_subdirectory(external/cJSON cjson)
+add_subdirectory(external/ArduiPi_OLED arduiPi_OLED)
 
-
+	
 add_subdirectory(ttuilite)
 add_subdirectory(sidekick)
 add_subdirectory(pd)

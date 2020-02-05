@@ -5,14 +5,12 @@
 
 include_directories (
         "${PROJECT_SOURCE_DIR}/.."
-	#${LIBCAIRO_INC}
-
 )
 
 
 set(TEST_SRC "ttuitest.cpp")
 add_executable(ttuitest ${TEST_SRC})
-target_link_libraries (ttuitest uilite pthread )
+target_link_libraries (ttuitest ttuilite pthread )
 #target_link_libraries (ttuitest uilite ${LIBCAIRO} pthread )
 
 #if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)

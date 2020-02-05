@@ -12,8 +12,11 @@
 #include <linux/fb.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
-#include <cairo.h>
-#include <cairo-ft.h>
+
+#include "ArduiPi_OLED_lib.h"
+#include "Adafruit_GFX.h"
+#include "ArduiPi_OLED.h"
+
 
 // gpio
 #include <unistd.h>
@@ -26,7 +29,7 @@
 #include <sys/poll.h>
 #include <sys/stat.h>
 
-#include <readerwriterqueue.h>
+//#include <readerwriterqueue.h>
 
 
 #ifndef SCREEN_FB_FMT
@@ -50,7 +53,7 @@
 #endif
 
 #define NUM_FONTS 67
-static cairo_font_face_t *ct[NUM_FONTS];
+//static cairo_font_face_t *ct[NUM_FONTS];
 
 static float colours[16] =
     {0.0f, 0.066666666666667f, 0.13333333333333f, 0.2f, 0.26666666666667f,
@@ -118,12 +121,14 @@ private:
     unsigned numEncoders_=4;
     std::string fbDev_;
 
-    cairo_surface_t *surfacefb_;
-    cairo_t *crfb_;
-    cairo_surface_t *surface_;
-    cairo_t *cr_;
-    std::vector<std::shared_ptr<TTuiCallback>> callbacks_;
-    moodycamel::ReaderWriterQueue<TTuiEventMsg> eventQueue_;
+    ArduiPi_OLED display_;
+
+    //cairo_surface_t *surfacefb_;
+    //cairo_t *crfb_;
+    //cairo_surface_t *surface_;
+    //cairo_t *cr_;
+    //std::vector<std::shared_ptr<TTuiCallback>> callbacks_;
+    //moodycamel::ReaderWriterQueue<TTuiEventMsg> eventQueue_;
     bool dirty_=true;
 };
 
@@ -197,6 +202,7 @@ void TTuiDevice::drawText(unsigned clr, unsigned x, unsigned y, const std::strin
     impl_->drawText(clr, x, y, str);
 }
 
+#if 0
 
 // fwd decl for helper functions
 extern void cairo_linuxfb_surface_destroy(void *device);
@@ -752,6 +758,8 @@ void setup_local_fonts(const char *resPath) {
     }
 
 }
+#endif
 
 
 }// namespace
+
