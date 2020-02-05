@@ -9,6 +9,9 @@ static volatile bool keepRunning = 1;
 
 TTuiLite::TTuiDevice device;
 
+
+#define DISPLAY 0;
+
 void intHandler(int dummy) {
     std::cerr << "LibTTuiTest intHandler called" << std::endl;
     if (!keepRunning) {
@@ -24,22 +27,22 @@ public:
     void onButton(unsigned id, unsigned value) override {
         char buf[100];
         sprintf(buf, "Button %d : %d", id, value);
-        device.clearText(0,0);
-        device.displayText(15, 0, 1, buf);
+        device.clearText(DISPLAY,0,0);
+        device.displayText(DISPLAY,15, 0, 1, buf);
         fprintf(stderr, "button %d : %d\n", id, value);
         if (value) {
             switch (id) {
                 case 0 : {
-                    device.clearText(0, 2);
-                    device.displayText(15, 2, 0, "hello");
-                    device.displayText(15, 2, 25, "world");
+                    device.clearText(DISPLAY,0, 2);
+                    device.displayText(DISPLAY,15, 2, 0, "hello");
+                    device.displayText(DISPLAY,15, 2, 25, "world");
                     break;
                 }
                 case 1 :
-                    device.clearText(0, 2);
+                    device.clearText(DISPLAY,0, 2);
                     break;
                 case 2 :
-                    device.invertText(2);
+                    device.invertText(DISPLAY,2);
                     break;
                 default:
                     break;
@@ -51,23 +54,23 @@ public:
     void onEncoder(unsigned id, int value) override {
         char buf[100];
         sprintf(buf, "Encoder %d : %d ", id, value);
-        device.clearText(0,0);
-        device.displayText(15, 0, 1, buf);
+        device.clearText(DISPLAY,0,0);
+        device.displayText(DISPLAY,15, 0, 1, buf);
         fprintf(stderr, "encoder %d : %d\n", id, value);
     }
 };
 
 
 // note: we are only painting every second to avoid tight loop here 
-void funcParam(unsigned row, unsigned col, const std::string &name, const std::string &value, bool selected = false) {
+void funcParam(unsigned display, unsigned row, unsigned col, const std::string &name, const std::string &value, bool selected = false) {
     unsigned x = col * 64;
     unsigned y1 = (row + 1) * 20;
     unsigned y2 = y1 + 10;
     unsigned clr = selected ? 15 : 0;
-    device.clearRect(5, x, y1, 62 + (col * 2), -10);
-    device.drawText(clr, x + 1, y1 - 1, name);
-    device.clearRect(0, x, y2, 62 + (col * 2), -10);
-    device.drawText(15, x + 1, y2 - 1, value);
+    device.clearRect(display,5, x, y1, 62 + (col * 2), -10);
+    device.drawText(display,clr, x + 1, y1 - 1, name);
+    device.clearRect(display,0, x, y2, 62 + (col * 2), -10);
+    device.drawText(display,15, x + 1, y2 - 1, value);
 }
 
 int main(int argc, const char *argv[]) {
@@ -77,20 +80,20 @@ int main(int argc, const char *argv[]) {
     device.start();
 
     signal(SIGINT, intHandler);
-    device.displayClear();
+    device.displayClear(DISPLAY);
 
 
-    device.drawPNG(0, 0, "./orac.png");
-    device.clearText(1, 0);
-    device.displayText(15, 0, 0, "a1 : BasicPoly > main");
+    device.drawBitmap(DISPLAY,0, 0, "./orac.pbm");
+    device.clearText(DISPLAY,1, 0);
+    device.displayText(DISPLAY,15, 0, 0, "a1 : BasicPoly > main");
 
     /*
-    device.clearRect(0,0, 128,10,1);
-    device.drawText(0,8,"a1 : BasicPoly > main",15);
-    funcParam(0,0,"Transpose","12     st");
-    funcParam(1,0,"Cutoff","15000 hz");
-    funcParam(0,1,"Shape","33",true);
-    funcParam(1,1,"Envelope","58     %");
+    device.clearRect(DISPLAY,0,0, 128,10,1);
+    device.drawText(DISPLAY, 0,8,"a1 : BasicPoly > main",15);
+    funcParam(DISPLAY,0,0,"Transpose","12     st");
+    funcParam(DISPLAY,1,0,"Cutoff","15000 hz");
+    funcParam(DISPLAY,0,1,"Shape","33",true);
+    funcParam(DISPLAY,1,1,"Envelope","58     %");
 
     */
 

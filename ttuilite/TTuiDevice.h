@@ -6,6 +6,8 @@
 namespace TTuiLite {
 
 
+//Note: only display functions work at this time!
+
 class TTuiCallback {
 public:
     TTuiCallback() { ; }
@@ -20,28 +22,28 @@ class TTuiDeviceImpl_;
 
 class TTuiDevice {
 public:
-    TTuiDevice(const char *resourcePath = nullptr);
+    TTuiDevice();
     ~TTuiDevice();
 
     void start();
     void stop();
     unsigned process(bool paint = true);
     void addCallback(std::shared_ptr<TTuiCallback>);
-
     bool buttonState(unsigned but);
     unsigned numEncoders();
+    unsigned numButtons();
 
-    void displayClear();
+    void displayClear(unsigned d);
     void displayPaint();
     // draw funcs
-    void clearRect(unsigned clr, unsigned x, unsigned y, unsigned w, unsigned h);
-    void drawText(unsigned clr, unsigned x, unsigned y, const std::string &str);
-    void drawPNG(unsigned x, unsigned y, const char *filename);
+    void clearRect(unsigned d, unsigned clr, unsigned x, unsigned y, unsigned w, unsigned h);
+    void drawText(unsigned d, unsigned clr, unsigned x, unsigned y, const std::string &str);
+    void drawBitmap(unsigned d, unsigned x, unsigned y, const char *filename);
 
     // simple text displays
-    void displayText(unsigned clr, unsigned line, unsigned col, const std::string &str);
-    void clearText(unsigned clr, unsigned line);
-    void invertText(unsigned line);
+    void displayText(unsigned d,unsigned clr, unsigned line, unsigned col, const std::string &str);
+    void clearText(unsigned d, unsigned clr, unsigned line);
+    void invertText(unsigned d, unsigned line);
 private:
     TTuiDeviceImpl_ *impl_;
 };
