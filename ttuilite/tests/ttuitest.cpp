@@ -41,9 +41,6 @@ public:
                 case 1 :
                     device.clearText(DISPLAY,0, 2);
                     break;
-                case 2 :
-                    device.invertText(DISPLAY,2);
-                    break;
                 default:
                     break;
 

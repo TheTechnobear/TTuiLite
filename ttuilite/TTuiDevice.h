@@ -43,7 +43,6 @@ public:
     // simple text displays
     void displayText(unsigned d,unsigned clr, unsigned line, unsigned col, const std::string &str);
     void clearText(unsigned d, unsigned clr, unsigned line);
-    void invertText(unsigned d, unsigned line);
 private:
     TTuiDeviceImpl_ *impl_;
 };

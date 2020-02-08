@@ -77,7 +77,6 @@ public:
     // text functions 
     void displayText(unsigned d, unsigned clr, unsigned line, unsigned col, const std::string &str);
     void clearText(unsigned d, unsigned clr, unsigned line);
-    void invertText(unsigned d, unsigned line);
 
     // draw functions
     void clearRect(unsigned d, unsigned clr, unsigned x, unsigned y, unsigned w, unsigned h);
@@ -162,9 +161,6 @@ void TTuiDevice::displayText(unsigned d, unsigned clr, unsigned line, unsigned c
     impl_->displayText(d,clr, line, col, str);
 }
 
-void TTuiDevice::invertText(unsigned d, unsigned line) {
-    impl_->invertText(d, line);
-}
 
 void TTuiDevice::clearText(unsigned d, unsigned clr, unsigned line) {
     impl_->clearText(d, clr, line);
@@ -299,25 +295,11 @@ void TTuiDeviceImpl_::displayText(unsigned d,unsigned clr, unsigned line, unsign
     drawText(d,clr,x,y,str);
 }
 
-void TTuiDeviceImpl_::invertText(unsigned d,unsigned line) {
-    if(d>MAX_DISPLAYS) return;
-    auto& display=display_[d];
-    unsigned x = 0;
-    unsigned y = (line * 10 + 10) + 1; // letters with drop
-
-    /// !!!???
-    // not available in ArduPI_OLED....
-    // possible options are...
-    // 1. rewrite client code, to just redisplay text, inverted with displayText as ncessary 
-    // 2. attempt to subclass ArduiPI_OLED::drawPixel, to store pixel buffer, and then can add invert line method.
-
-    dirty_[d] = true;
-}
-
 void TTuiDeviceImpl_::clearText(unsigned d,unsigned clr, unsigned line) {
     unsigned x = 0;
-    unsigned y = (line * 10 + 10) + 1; // letters with drop
-    clearRect(d, clr, x, y + 1, SCREEN_X, -10);
+    //unsigned y = (line * 10 + 10) + 1; // letters with drop
+    unsigned y = (line * 10 + 10);
+    clearRect(d, clr, x, y + 1, SCREEN_X, 10);
     dirty_[d] = true;
 }
 
