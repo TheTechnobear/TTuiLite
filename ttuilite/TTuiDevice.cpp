@@ -297,9 +297,8 @@ void TTuiDeviceImpl_::displayText(unsigned d,unsigned clr, unsigned line, unsign
 
 void TTuiDeviceImpl_::clearText(unsigned d,unsigned clr, unsigned line) {
     unsigned x = 0;
-    //unsigned y = (line * 10 + 10) + 1; // letters with drop
-    unsigned y = (line * 10 + 10);
-    clearRect(d, clr, x, y + 1, SCREEN_X, 10);
+    unsigned y = (line * 10 + 10) - 1;
+    clearRect(d, clr, x, y, SCREEN_X, 10);
     dirty_[d] = true;
 }
 
