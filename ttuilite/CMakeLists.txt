@@ -16,9 +16,11 @@ set(TT_H
 	TTuiDevice.h
         )
 
-set(TT_SRC
-	TTuiDevice.cpp
-        )
+if(UNIX AND NOT APPLE)
+    set(TT_SRC	TTuiDevice.cpp )
+else() 
+    set(TT_SRC  TTuiDeviceNop.cpp )
+endif()
 
 
 
@@ -30,7 +32,12 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     target_link_libraries(ttuilite atomic)
 endif ()
 
-target_link_libraries(ttuilite "dl" "pthread" arduiPi_OLED)
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(ttuilite "dl" "pthread" arduiPi_OLED)
+else() 
+    target_link_libraries(ttuilite "dl" "pthread")
+endif()
 
 target_include_directories(ttuilite PUBLIC
         .
