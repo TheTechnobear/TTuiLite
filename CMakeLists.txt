@@ -82,6 +82,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release/bin)
 
 ############
+add_subdirectory(external/oscpack oscpack)
 add_subdirectory(external/moodycamel moodycamel)
 add_subdirectory(external/cJSON cjson)
 
@@ -90,6 +91,6 @@ if(UNIX AND NOT APPLE)
 endif()
 	
 add_subdirectory(ttuilite)
-#add_subdirectory(sidekick)
+add_subdirectory(sidekick)
 #add_subdirectory(pd)
 

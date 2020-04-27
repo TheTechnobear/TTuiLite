@@ -14,7 +14,7 @@ public:
 
     virtual ~TTuiCallback() = default;
     virtual void onButton(unsigned id, unsigned value) = 0;
-    virtual void onEncoder(unsigned id, int value) = 0;
+    virtual void onPot(unsigned id, int value) = 0;
 };
 
 
@@ -30,7 +30,7 @@ public:
     unsigned process(bool paint = true);
     void addCallback(std::shared_ptr<TTuiCallback>);
     bool buttonState(unsigned but);
-    unsigned numEncoders();
+    unsigned numPots();
     unsigned numButtons();
 
     void displayClear(unsigned d);

@@ -67,7 +67,7 @@ public:
     void addCallback(std::shared_ptr<TTuiCallback>);
 
     bool buttonState(unsigned but);
-    unsigned numEncoders();
+    unsigned numPots();
     unsigned numButtons();
 
 
@@ -141,8 +141,8 @@ bool TTuiDevice::buttonState(unsigned but) {
     return impl_->buttonState(but);
 }
 
-unsigned TTuiDevice::numEncoders() {
-    return impl_->numEncoders();
+unsigned TTuiDevice::numPots() {
+    return impl_->numPots();
 }
 
 unsigned TTuiDevice::numButtons() {
@@ -218,7 +218,7 @@ unsigned TTuiDeviceImpl_::process(bool paint) {
                     break;
                 }
                 case TTuiEventMsg::N_ENCODER : {
-                    cb->onEncoder(msg.id_, msg.value_);
+                    cb->onPot(msg.id_, msg.value_);
                     break;
                 }
                 default:; // ignore
@@ -240,7 +240,7 @@ bool TTuiDeviceImpl_::buttonState(unsigned but) {
 }
 
 
-unsigned TTuiDeviceImpl_::numEncoders() {
+unsigned TTuiDeviceImpl_::numPots() {
     return 0;
 }
 

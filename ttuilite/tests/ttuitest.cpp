@@ -13,7 +13,7 @@ TTuiLite::TTuiDevice device;
 #define DISPLAY 0
 
 void intHandler(int dummy) {
-    std::cerr << "LibTTuiTest intHandler called" << std::endl;
+    std::cerr << "TTuiTest intHandler called" << std::endl;
     if (!keepRunning) {
         sleep(1);
         exit(-1);
@@ -48,12 +48,12 @@ public:
         }
     }
 
-    void onEncoder(unsigned id, int value) override {
+    void onPot(unsigned id, int value) override {
         char buf[100];
-        sprintf(buf, "Encoder %d : %d ", id, value);
+        sprintf(buf, "Pot %d : %d ", id, value);
         device.clearText(DISPLAY,0,0);
         device.displayText(DISPLAY,15, 0, 1, buf);
-        fprintf(stderr, "encoder %d : %d\n", id, value);
+        fprintf(stderr, "pot %d : %d\n", id, value);
     }
 };
 

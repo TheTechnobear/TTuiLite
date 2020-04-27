@@ -29,7 +29,7 @@ bool TTuiDevice::buttonState(unsigned ) {
     return false;
 }
 
-unsigned TTuiDevice::numEncoders() {
+unsigned TTuiDevice::numPots() {
     return 0;
 }
 

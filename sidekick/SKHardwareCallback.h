@@ -5,12 +5,12 @@
 
 class SKApp;
 
-class SKCallback : public TTuiLite::TTuiCallback {
+class SKHardwareCallback : public TTuiLite::TTuiCallback {
 public:
-    explicit SKCallback(SKApp &app);
+    explicit SKHardwareCallback(SKApp &app);
     void init();
     void onButton(unsigned id, unsigned value) override;
-    void onEncoder(unsigned id, int value) override;
+    void onPot(unsigned id, int value) override;
 
 private:
     SKApp &app_;
