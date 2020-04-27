@@ -49,6 +49,7 @@ the following assume you have done this :)
 
 ```
 . ~/xcTT/xcSetEnv
+scp  $XC_SSH:'/usr/lib/libwiringPi*' $XC_ROOT/sysroot/usr/lib/
 mkdir build
 cd build
 cmake -DCMAKE_TOOLCHAIN_FILE=~/xcTT/cmake/tt-toolchain.cmake  -DTT=on ..

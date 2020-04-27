@@ -12,6 +12,12 @@ void SKHardwareCallback::onButton(unsigned id, unsigned value) {
     app_.onButton(id, value);
 }
 
-void SKHardwareCallback::onPot(unsigned id, int value) {
+void SKHardwareCallback::onPot(unsigned id, unsigned value) {
     app_.onPot(id, value);
 }
+
+
+void SKHardwareCallback::onTrig(unsigned id, unsigned value) {
+    app_.onTrig(id, value);
+}
+

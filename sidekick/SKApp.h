@@ -27,7 +27,8 @@ public:
     void stop();
 
     void onButton(unsigned id, unsigned value);
-    void onPot(unsigned id, int value);
+    void onPot(unsigned id, unsigned value);
+    void onTrig(unsigned id, unsigned value);
 
     void processOsc(); // dont call!
     void processOscWrite(); // dont call!
@@ -125,6 +126,7 @@ private:
     std::string pdOpts_;
     std::string scOpts_;
     std::string scHome_;
+    unsigned gpioPollT_;
 
     // listen for osc
     unsigned listenPort_ = 3001;

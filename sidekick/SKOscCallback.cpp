@@ -27,62 +27,83 @@ void SKOscCallback::ProcessMessage(const osc::ReceivedMessage &m,
             app_.stopPatch();
         } else if (addr == "/sk/deviceInfo") {
             app_.sendDeviceInfo();
+        } else if (addr == "/ttui/gate") {
+            osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned n = getUnsignedArg(arg);
+            unsigned v = getUnsignedArg(arg);
+            app_.device().gateOut(n,v);
+        } else if (addr == "/ttui/led") {
+            osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned v = getUnsignedArg(arg);
+            app_.device().ledOut(v);
         } else if (addr == "/ttui/displayClear") {
-            // app_.device().displayClear();
+            osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned dId = getUnsignedArg(arg);
+            app_.device().displayClear(dId);
         } else if (addr == "/ttui/displayPaint") {
             app_.device().displayPaint();
         } else if (addr == "/ttui/gClear") {
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned dId = getUnsignedArg(arg);
             unsigned clr = getUnsignedArg(arg);
-            // app_.device().gClear(clr);
+            app_.device().gClear(dId,clr);
         } else if (addr == "/ttui/gSetPixel") {
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned dId = getUnsignedArg(arg);
             unsigned clr = getUnsignedArg(arg);
             unsigned x = getUnsignedArg(arg);
             unsigned y = getUnsignedArg(arg);
-            // app_.device().gSetPixel(clr, x, y);
+            app_.device().gSetPixel(dId,clr, x, y);
         } else if (addr == "/ttui/gFillArea") {
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned dId = getUnsignedArg(arg);
             unsigned clr = getUnsignedArg(arg);
             unsigned x = getUnsignedArg(arg);
             unsigned y = getUnsignedArg(arg);
             unsigned w = getUnsignedArg(arg);
             unsigned h = getUnsignedArg(arg);
-            // app_.device().gFillArea(clr, x, y, w, h);
+            app_.device().gFillArea(dId,clr, x, y, w, h);
         } else if (addr == "/ttui/gCircle") {
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned dId = getUnsignedArg(arg);
             unsigned clr = getUnsignedArg(arg);
             unsigned x = getUnsignedArg(arg);
             unsigned y = getUnsignedArg(arg);
             unsigned r = getUnsignedArg(arg);
-            // app_.device().gCircle(clr, x, y, r);
+            app_.device().gCircle(dId,clr, x, y, r);
         } else if (addr == "/ttui/gFilledCircle") {
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned dId = getUnsignedArg(arg);
             unsigned clr = getUnsignedArg(arg);
             unsigned x = getUnsignedArg(arg);
             unsigned y = getUnsignedArg(arg);
             unsigned r = getUnsignedArg(arg);
-            // app_.device().gFilledCircle(clr, x, y, r);
+            app_.device().gFilledCircle(dId,clr, x, y, r);
         } else if (addr == "/ttui/gLine") {
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned dId = getUnsignedArg(arg);
             unsigned clr = getUnsignedArg(arg);
             unsigned x1 = getUnsignedArg(arg);
             unsigned y1 = getUnsignedArg(arg);
             unsigned x2 = getUnsignedArg(arg);
             unsigned y2 = getUnsignedArg(arg);
-            // app_.device().gLine(clr, x1, y1, x2, y2);
+            app_.device().gLine(dId,clr, x1, y1, x2, y2);
         } else if (addr == "/ttui/gRectangle") {
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned dId = getUnsignedArg(arg);
             unsigned clr = getUnsignedArg(arg);
             unsigned x = getUnsignedArg(arg);
             unsigned y = getUnsignedArg(arg);
             unsigned w = getUnsignedArg(arg);
             unsigned h = getUnsignedArg(arg);
-            // app_.device().gRectangle(clr, x, y, w, h);
+            app_.device().gRectangle(dId,clr, x, y, w, h);
         } else if (addr == "/ttui/gInvert") {
-            // app_.device().gInvert();
+            osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned dId = getUnsignedArg(arg);
+            app_.device().gInvert(dId);
         } else if (addr == "/ttui/gText") {
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned dId = getUnsignedArg(arg);
             unsigned clr = getUnsignedArg(arg);
             unsigned x = getUnsignedArg(arg);
             unsigned y = getUnsignedArg(arg);
@@ -103,36 +124,17 @@ void SKOscCallback::ProcessMessage(const osc::ReceivedMessage &m,
                 }
                 arg++;
             }
-            // app_.device().gText(clr, x, y, str);
-        } else if (addr == "/ttui/gWaveform") {
-            std::vector<unsigned> wave;
+            app_.device().gText(dId,clr, x, y, str);
+        } else if (addr == "/ttui/gBitmap") {
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
-            unsigned clr = getUnsignedArg(arg);
-            if (arg->IsBlob()) {
-                const void *blob;
-                osc::osc_bundle_element_size_t size;
-                (arg++)->AsBlob(blob, size);
-                for (int i = 0; i < size; i++) {
-                    const uint8_t *values = static_cast<const uint8_t *>(blob);
-                    wave.push_back(values[i]);
-                }
-            }
-            // app_.device().gWaveform(clr, wave); // 128 values, of 0..64
-        } else if (addr == "/ttui/gInvertArea") {
-            osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
-            unsigned x = getUnsignedArg(arg);
-            unsigned y = getUnsignedArg(arg);
-            unsigned w = getUnsignedArg(arg);
-            unsigned h = getUnsignedArg(arg);
-            // app_.device().gInvertArea(x, y, w, h);
-        } else if (addr == "/ttui/gPng") {
-            osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned dId = getUnsignedArg(arg);
             unsigned x = getUnsignedArg(arg);
             unsigned y = getUnsignedArg(arg);
             const char *filename = (arg++)->AsString();
-            // app_.device().gPng(x, y, filename);
+            app_.device().gBitmap(dId,x, y, filename);
         } else if (addr == "/ttui/textLine") {
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned dId = getUnsignedArg(arg);
             unsigned clr = getUnsignedArg(arg);
             unsigned line = getUnsignedArg(arg);
             unsigned col = getUnsignedArg(arg);
@@ -153,16 +155,13 @@ void SKOscCallback::ProcessMessage(const osc::ReceivedMessage &m,
                 }
                 arg++;
             }
-            // app_.device().textLine(clr, line, col, str);
-        } else if (addr == "/ttui/invertLine") {
-            osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
-            unsigned line = getUnsignedArg(arg);
-            // app_.device().invertLine(line);
+            app_.device().textLine(dId,clr, line, col, str);
         } else if (addr == "/ttui/clearLine") {
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned dId = getUnsignedArg(arg);
             unsigned clr = getUnsignedArg(arg);
             unsigned line = getUnsignedArg(arg);
-            // app_.device().clearLine(clr, line);
+            app_.device().clearLine(dId,clr, line);
         } else {
             std::cerr << "unrecognied msg addr" << addr << std::endl;
         }

@@ -27,19 +27,19 @@ public:
     void onButton(unsigned id, unsigned value) override {
         char buf[100];
         sprintf(buf, "Button %d : %d", id, value);
-        device.clearText(DISPLAY,0,0);
-        device.displayText(DISPLAY,15, 0, 1, buf);
+        device.clearLine(DISPLAY,0,0);
+        device.textLine(DISPLAY,15, 0, 1, buf);
         fprintf(stderr, "button %d : %d\n", id, value);
         if (value) {
             switch (id) {
                 case 0 : {
-                    device.clearText(DISPLAY,0, 2);
-                    device.displayText(DISPLAY,15, 2, 0, "hello");
-                    device.displayText(DISPLAY,15, 2, 25, "world");
+                    device.clearLine(DISPLAY,0, 2);
+                    device.textLine(DISPLAY,15, 2, 0, "hello");
+                    device.textLine(DISPLAY,15, 2, 25, "world");
                     break;
                 }
                 case 1 :
-                    device.clearText(DISPLAY,0, 2);
+                    device.clearLine(DISPLAY,0, 2);
                     break;
                 default:
                     break;
@@ -48,11 +48,36 @@ public:
         }
     }
 
-    void onPot(unsigned id, int value) override {
+    void onTrig(unsigned id, unsigned value) override {
+        char buf[100];
+        sprintf(buf, "Trig %d : %d", id, value);
+        device.clearLine(DISPLAY,0,0);
+        device.textLine(DISPLAY,15, 0, 1, buf);
+        fprintf(stderr, "trig %d : %d\n", id, value);
+        if (value) {
+            switch (id) {
+                case 0 : {
+                    device.clearLine(DISPLAY,0, 2);
+                    device.textLine(DISPLAY,15, 2, 0, "hello");
+                    device.textLine(DISPLAY,15, 2, 25, "world");
+                    break;
+                }
+                case 1 :
+                    device.clearLine(DISPLAY,0, 2);
+                    break;
+                default:
+                    break;
+
+            }
+        }
+    }
+
+
+    void onPot(unsigned id, unsigned value) override {
         char buf[100];
         sprintf(buf, "Pot %d : %d ", id, value);
-        device.clearText(DISPLAY,0,0);
-        device.displayText(DISPLAY,15, 0, 1, buf);
+        device.clearLine(DISPLAY,0,0);
+        device.textLine(DISPLAY,15, 0, 1, buf);
         fprintf(stderr, "pot %d : %d\n", id, value);
     }
 };
@@ -63,10 +88,10 @@ void funcParam(unsigned display, unsigned row, unsigned col, const std::string &
     unsigned x = col * 64;
     unsigned y1 = (row + 1) * 20;
     unsigned y2 = y1 + 10;
-    device.clearRect(display,0, x, y1, 62 + (col * 2), 10);
-    device.drawText(display,15, x + 1, y1 - 1, name);
-    device.clearRect(display,0, x, y2, 62 + (col * 2), 10);
-    device.drawText(display,15, x + 1, y2 - 1, value);
+    device.gFillArea(display,0, x, y1, 62 + (col * 2), 10);
+    device.gText(display,15, x + 1, y1 - 1, name);
+    device.gFillArea(display,0, x, y2, 62 + (col * 2), 10);
+    device.gText(display,15, x + 1, y2 - 1, value);
 }
 
 int main(int argc, const char *argv[]) {
@@ -82,24 +107,24 @@ int main(int argc, const char *argv[]) {
 
 
     std::cout << "draw bitmap" << std::endl;
-    device.drawBitmap(0,0, 0, "./orac.pbm");
+    device.gBitmap(0,0, 0, "./orac.pbm");
 
     std::cout << "draw some text" << std::endl;
     //device.clearText(1, 1, 0);
-    device.displayText(1, 15, 0, 0, "display 1");
+    device.textLine(1, 15, 0, 0, "display 1");
     device.displayPaint();
     sleep(1);
     device.displayClear(0);
-    device.displayText(0, 15, 0, 0, "finished 0");
+    device.textLine(0, 15, 0, 0, "finished 0");
     device.displayClear(1);
-    device.displayText(1, 15, 0, 0, "finished 1");
+    device.textLine(1, 15, 0, 0, "finished 1");
     device.displayPaint();
     sleep(1);
 
     
     device.displayClear(0);
     //device.clearRect(0,0,0, 128,10,1);
-    device.drawText(0,15,0,8,"a1 : BasicPoly > main");
+    device.textLine(0,15,0,8,"a1 : BasicPoly > main");
     funcParam(0,0,0,"Transpose","12     st");
     funcParam(0,1,0,"Cutoff","15000 hz");
     funcParam(0,0,1,"Shape","33",true);

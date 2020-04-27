@@ -55,6 +55,8 @@ void SKApp::init(SKPrefs &prefs) {
     sendPort_ = (unsigned) prefs.getInt("sendPort", 3000);
     sendAddr_ = prefs.getString("sendAddr", "127.0.0.1");
 
+    gpioPollT_ = (unsigned) prefs.getInt("gpioPollTime",1000);
+
     topPatchDir_ = patchDir_;
     topSystemDir_ = systemDir_;
 
@@ -64,6 +66,7 @@ void SKApp::init(SKPrefs &prefs) {
     cb->init();
     device_.addCallback(cb);
     device_.start();
+    device_.gpioPollTime(gpioPollT_);
 
     startOscServer();
     sendSKOscEvent("start");
@@ -337,8 +340,8 @@ void SKApp::runRefreshSystem() {
     reloadMenu();
 
     device_.displayClear(dId_);
-    device_.displayText(dId_,15, 0, 0, "Checking for updates ...");
-    device_.displayText(dId_,15, 2, 0, "Updating repo...");
+    device_.textLine(dId_,15, 0, 0, "Checking for updates ...");
+    device_.textLine(dId_,15, 2, 0, "Updating repo...");
     device_.displayPaint();
 
     execShell("sudo apt update");
@@ -348,12 +351,12 @@ void SKApp::runRefreshSystem() {
     runUpdate(topPatchDir_);
 
     // update sidekick afterwards, since it may restart sidekick
-    device_.clearText(dId_,0, 2);
-    device_.displayText(dId_,15, 2, 0, "Checking sidekick...");
+    device_.clearLine(dId_,0, 2);
+    device_.textLine(dId_,15, 2, 0, "Checking sidekick...");
     device_.displayPaint();
     execShell("sudo apt install -y sidekick");
-    device_.clearText(dId_,0, 2);
-    device_.displayText(dId_,15, 2, 0, "Completed");
+    device_.clearLine(dId_,0, 2);
+    device_.textLine(dId_,15, 2, 0, "Completed");
     device_.displayPaint();
     sleep(1);
 
@@ -374,8 +377,8 @@ void SKApp::runUpdate(const std::string &root) {
                     std::string updatefile = dir + "/update.sh";
                     if (checkFileExists(updatefile)) {
                         std::string txt = "Checking " + dir + " ...";
-                        device_.clearText(dId_,0, 2);
-                        device_.displayText(dId_,15, 2, 0, txt);
+                        device_.clearLine(dId_,0, 2);
+                        device_.textLine(dId_,15, 2, 0, txt);
                         device_.displayPaint();
                         std::string shcmd = "cd \"" + dir + "\"; ./update.sh";
                         std::cout << "update running : " << shcmd << std::endl;
@@ -399,7 +402,7 @@ void SKApp::runPowerOff() {
     sendSKOscEvent("powerOff");
     sleep(1);
     device_.displayClear(dId_);
-    device_.displayText(dId_,15, 0, 0, "Powering Down...");
+    device_.textLine(dId_,15, 0, 0, "Powering Down...");
     device_.displayPaint();
     execShell("sudo poweroff");
 }
@@ -427,10 +430,10 @@ void SKApp::displayMenu() {
         if ((*mi)->type_ == MenuItem::InstallFile) txt = "Install " + txt;
         else if ((*mi)->type_ == MenuItem::Dir) txt = "[" + txt + "]";
         if (idx == selIdx_) {
-            device_.displayText(dId_,0, line, 0, txt);
+            device_.textLine(dId_,0, line, 0, txt);
         }
         else {
-            device_.displayText(dId_,15, line, 0, txt);
+            device_.textLine(dId_,15, line, 0, txt);
         }
         line++;
         idx++;
@@ -441,8 +444,8 @@ void SKApp::activateItem() {
     try {
         auto item = mainMenu_.at(selIdx_);
         device_.displayClear(dId_);
-        device_.displayText(dId_,15, 0, 0, "Launch...");
-        device_.displayText(dId_,15, 1, 0, item->name_);
+        device_.textLine(dId_,15, 0, 0, "Launch...");
+        device_.textLine(dId_,15, 1, 0, item->name_);
         std::cerr << "launch : " << item->name_ << std::endl;
 
         device_.displayPaint();
@@ -650,9 +653,23 @@ void SKApp::onButton(unsigned id, unsigned value) {
         } else {
             activeCount_ = -1;
         }
-    } else if (id == 0 && value) {
-        std::cerr << "Sidekick launch " << std::endl;
-        activateItem();
+    } else {
+        if(value) { 
+            if (id == 2) {
+                std::cerr << "Sidekick launch " << std::endl;
+                activateItem();
+            } else {
+                if (id==1) {
+                    if (selIdx_ < (mainMenu_.size() - 1)) selIdx_++;
+                } else {
+                    if (selIdx_ > 0) selIdx_--;
+                }
+                if (selIdx_ >= (menuOffset_ + maxItems_)) menuOffset_ = selIdx_ - (maxItems_ - 1);
+                if (menuOffset_ > selIdx_) menuOffset_ = selIdx_;
+
+                displayMenu();
+            }
+        }
     }
 
     if(sendPort_!=0) {
@@ -667,7 +684,7 @@ void SKApp::onButton(unsigned id, unsigned value) {
     }
 }
 
-void SKApp::onPot(unsigned id, int value) {
+void SKApp::onPot(unsigned id, unsigned value) {
     if(sendPort_!=0) {
         osc::OutboundPacketStream ops(osc_write_buffer_, OSC_OUTPUT_BUFFER_SIZE);
         ops << osc::BeginBundleImmediate
@@ -678,21 +695,21 @@ void SKApp::onPot(unsigned id, int value) {
             << osc::EndBundle;
         sendOsc(ops.Data(), ops.Size());
     }
+}
 
-    if (!sidekickActive_) return;
-
-    if (id == 0) {
-        if (value > 0) {
-            if (selIdx_ < (mainMenu_.size() - 1)) selIdx_++;
-        } else if (value < 0) {
-            if (selIdx_ > 0) selIdx_--;
-        }
-        if (selIdx_ >= (menuOffset_ + maxItems_)) menuOffset_ = selIdx_ - (maxItems_ - 1);
-        if (menuOffset_ > selIdx_) menuOffset_ = selIdx_;
-
-        displayMenu();
+void SKApp::onTrig(unsigned id, unsigned value) {
+    if(sendPort_!=0) {
+        osc::OutboundPacketStream ops(osc_write_buffer_, OSC_OUTPUT_BUFFER_SIZE);
+        ops << osc::BeginBundleImmediate
+            << osc::BeginMessage("/ttui/trig")
+            << (int32_t) id
+            << (int32_t) value
+            << osc::EndMessage
+            << osc::EndBundle;
+        sendOsc(ops.Data(), ops.Size());
     }
 }
+
 
 
 std::string SKApp::getCmdOptions(const std::string &file) {
@@ -795,6 +812,14 @@ void SKApp::sendDeviceInfo() {
     ops << osc::BeginMessage("/ttui/numpot")
         << (int) device_.numPots()
         << osc::EndMessage;
+
+    ops << osc::BeginMessage("/ttui/numtrigs")
+        << (int) device_.numTrigs()
+        << osc::EndMessage;
+    ops << osc::BeginMessage("/ttui/numgateout")
+        << (int) device_.numGateOut()
+        << osc::EndMessage;
+
 
     ops << osc::EndBundle;
     sendOsc(ops.Data(), ops.Size());

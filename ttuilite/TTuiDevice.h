@@ -14,7 +14,8 @@ public:
 
     virtual ~TTuiCallback() = default;
     virtual void onButton(unsigned id, unsigned value) = 0;
-    virtual void onPot(unsigned id, int value) = 0;
+    virtual void onPot(unsigned id, unsigned value) = 0;
+    virtual void onTrig(unsigned id, unsigned value) = 0;
 };
 
 
@@ -32,17 +33,37 @@ public:
     bool buttonState(unsigned but);
     unsigned numPots();
     unsigned numButtons();
+    unsigned numTrigs();
+    unsigned numGateOut();
+
+
+    void gpioPollTime(unsigned); // uSec, defaults 1000
+
+    void gateOut(unsigned,bool);
+    void ledOut(bool);
 
     void displayClear(unsigned d);
     void displayPaint();
     // draw funcs
-    void clearRect(unsigned d, unsigned clr, unsigned x, unsigned y, unsigned w, unsigned h);
-    void drawText(unsigned d, unsigned clr, unsigned x, unsigned y, const std::string &str);
-    void drawBitmap(unsigned d, unsigned x, unsigned y, const char *filename);
+    void gClear(unsigned d, unsigned clr);
+    void gSetPixel(unsigned d, unsigned clr, unsigned x, unsigned y);
+    void gFillArea(unsigned d, unsigned clr, unsigned x, unsigned y, unsigned w, unsigned h);
+    void gCircle(unsigned d, unsigned clr, unsigned x, unsigned y, unsigned r);
+    void gFilledCircle(unsigned d, unsigned clr, unsigned x, unsigned y, unsigned r);
+    void gLine(unsigned d, unsigned clr, unsigned x1, unsigned y1, unsigned x2, unsigned y2);
+    void gRectangle(unsigned d, unsigned clr, unsigned x, unsigned y, unsigned w, unsigned h);
+    void gInvert(unsigned d);
+    void gText(unsigned d, unsigned clr, unsigned x, unsigned y, const std::string &str);
+    void gBitmap(unsigned d, unsigned x, unsigned y, const char *filename);
+    // void gWaveform(unsigned d, unsigned clr, const std::vector<unsigned> &wave); // 128 values, of 0..64
+    // void gInvertArea(unsigned d, unsigned x, unsigned y, unsigned w, unsigned h);
+    // void gPng(unsigned d, unsigned x, unsigned y, const char *filename);
 
     // simple text displays
-    void displayText(unsigned d,unsigned clr, unsigned line, unsigned col, const std::string &str);
-    void clearText(unsigned d, unsigned clr, unsigned line);
+    void textLine(unsigned d,unsigned clr, unsigned line, unsigned col, const std::string &str);
+    void clearLine(unsigned d, unsigned clr, unsigned line);
+    // void invertLine(unsigned line);
+
 private:
     TTuiDeviceImpl_ *impl_;
 };

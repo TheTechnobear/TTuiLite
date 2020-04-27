@@ -17,7 +17,7 @@ set(TT_H
         )
 
 if(UNIX AND NOT APPLE)
-    set(TT_SRC	TTuiDevice.cpp )
+    set(TT_SRC	TTuiDevice.cpp TTgpio.cpp TTgpio.h TTuiDevice.h)
 else() 
     set(TT_SRC  TTuiDeviceNop.cpp )
 endif()
@@ -34,7 +34,7 @@ endif ()
 
 
 if(UNIX AND NOT APPLE)
-    target_link_libraries(ttuilite "dl" "pthread" arduiPi_OLED)
+    target_link_libraries(ttuilite "dl" "pthread" arduiPi_OLED i2c)
 else() 
     target_link_libraries(ttuilite "dl" "pthread")
 endif()
