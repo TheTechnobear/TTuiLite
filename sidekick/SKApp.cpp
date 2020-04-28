@@ -55,7 +55,7 @@ void SKApp::init(SKPrefs &prefs) {
     sendPort_ = (unsigned) prefs.getInt("sendPort", 3000);
     sendAddr_ = prefs.getString("sendAddr", "127.0.0.1");
 
-    gpioPollT_ = (unsigned) prefs.getInt("gpioPollTime",1000);
+    gpioPollT_ = (unsigned) prefs.getInt("gpioPollTime",10000);
 
     topPatchDir_ = patchDir_;
     topSystemDir_ = systemDir_;
