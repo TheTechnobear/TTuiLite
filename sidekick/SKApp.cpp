@@ -807,9 +807,9 @@ void SKApp::sendSKOscEvent(const std::string &event, const std::string data) {
 
 void SKApp::sendDeviceInfo() {
     if(sendPort_==0) return;
+    {
     osc::OutboundPacketStream ops(osc_write_buffer_, OSC_OUTPUT_BUFFER_SIZE);
     ops << osc::BeginBundleImmediate;
-    
     ops << osc::BeginMessage("/ttui/numbuttons")
         << (int) device_.numButtons()
         << osc::EndMessage;
@@ -817,17 +817,23 @@ void SKApp::sendDeviceInfo() {
     ops << osc::BeginMessage("/ttui/numpot")
         << (int) device_.numPots()
         << osc::EndMessage;
+    ops << osc::EndBundle;
+    sendOsc(ops.Data(), ops.Size());
+    }
 
+    // too big to go in one msg
+    {
+    osc::OutboundPacketStream ops(osc_write_buffer_, OSC_OUTPUT_BUFFER_SIZE);
+    ops << osc::BeginBundleImmediate;
     ops << osc::BeginMessage("/ttui/numtrigs")
         << (int) device_.numTrigs()
         << osc::EndMessage;
     ops << osc::BeginMessage("/ttui/numgateout")
         << (int) device_.numGateOut()
         << osc::EndMessage;
-
-
     ops << osc::EndBundle;
     sendOsc(ops.Data(), ops.Size());
+    }
 }
 
 void SKApp::sendOsc(const char *data, unsigned size) {
