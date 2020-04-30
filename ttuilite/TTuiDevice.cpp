@@ -37,6 +37,8 @@
 #include "TTgpio.h"
 
 static unsigned gpioPollTime_=1000;
+static unsigned gpioSmoothing_=1;
+static unsigned gpioDeadband_=2;
 
 #ifndef SCREEN_X
 #define SCREEN_X 128
@@ -79,8 +81,6 @@ public:
 
     void gateOut(unsigned,bool);
     void ledOut(bool);
-
-
 
     void displayPaint();
 
@@ -142,6 +142,15 @@ TTuiDevice::~TTuiDevice() {
 void TTuiDevice::gpioPollTime(unsigned t) {
     gpioPollTime_=t;    
 } 
+
+
+void TTuiDevice::gpioSmoothing(unsigned v) {
+    gpioSmoothing_=v;
+}
+
+void TTuiDevice::gpioDeadband(unsigned v) {
+    gpioDeadband_=v;
+}
 
 void TTuiDevice::start() {
     impl_->start();
@@ -496,55 +505,65 @@ void *process_gpio_func(void *x) {
 
 
 void TTuiDeviceImpl_::processGPIO() {
+    unsigned adcState[ADC_NUM_CHANNELS]; 
+    unsigned prevAdcState[ADC_NUM_CHANNELS]; 
+
     bool digInState[MAX_DIG_IN] = {false,false,false,false,false,false,false};
-    uint16_t adcState[ADC_NUM_CHANNELS]; // adc values
     bool sentDigOutState[MAX_DIG_OUT] = {false,false,false};
+
     for(unsigned i=0;i<ADC_NUM_CHANNELS;i++) {
-        adcState[i] = 0;
+        prevAdcState[i]=adcState[i] = 0;
     }
+
     const unsigned numB = numButtons();
     while (keepRunning_) {
-        // digital in
-        for(unsigned pin=0;pin<MAX_DIG_IN;pin++) {
-            auto d= ! TTgpio::digiRead(pin);
+        TTgpio::smoothing(gpioSmoothing_);
+        TTgpio::deadband(gpioDeadband_);
 
-            if(d!=digInState[pin]) {
+        // digital in
+        for(unsigned i=0;i<MAX_DIG_IN;i++) {
+            auto d= ! TTgpio::digiRead(i);
+
+            if(d!=digInState[i]) {
                 TTuiEventMsg msg;
-                if(pin < numB) {
+                if(i < numB) {
                     msg.type_ = TTuiEventMsg::N_BUTTON;
-                    msg.id_ = pin; 
+                    msg.id_ = i; 
                 } else {
                     msg.type_ = TTuiEventMsg::N_TRIG;
-                    msg.id_ = pin-numB; 
+                    msg.id_ = i-numB; 
                 }
                 msg.value_ = d;
                 eventQueue_.enqueue(msg);
             }
-            digInState[pin]=d;
+            digInState[i]=d;
         }
 
         // digital out 
-        for(unsigned pin=0;pin<MAX_DIG_OUT;pin++) {
-            if(digOutState[pin]!=sentDigOutState[pin]) {
-                auto d=digOutState[pin];
-                TTgpio::digiWrite(pin,d);
-                sentDigOutState[pin]=d;
+        for(unsigned i=0;i<MAX_DIG_OUT;i++) {
+            if(digOutState[i]!=sentDigOutState[i]) {
+                auto d=digOutState[i];
+                TTgpio::digiWrite(i,d);
+                sentDigOutState[i]=d;
             }
         }
 
         // adc input
-        for(unsigned adc=0;adc<ADC_NUM_CHANNELS;adc++) {
-            auto prev=adcState[adc];
-            TTgpio::readADC(adc,adcState);
-            if(adcState[adc]!=prev) {
-                TTuiEventMsg msg;
-                msg.type_ = TTuiEventMsg::N_POT;
-                msg.id_ = adc;
-                msg.value_ = adcState[adc];
-                eventQueue_.enqueue(msg);
+        if(TTgpio::readADC(adcState,ADC_NUM_CHANNELS)>0) {
+            // any changed, send out update messages
+            for(unsigned i=0;i<ADC_NUM_CHANNELS;i++) {
+                auto prev=prevAdcState[i];
+                if(adcState[i]!=prev) {
+                    TTuiEventMsg msg;
+                    msg.type_ = TTuiEventMsg::N_POT;
+                    msg.id_ = i;
+                    msg.value_ = adcState[i];
+                    eventQueue_.enqueue(msg);
+                }
+                prevAdcState[i]=adcState[i];
             }
-        }
-
+       }
+ 
         // sleep
         usleep(gpioPollTime_);
     }

@@ -27,6 +27,8 @@ void SKOscCallback::ProcessMessage(const osc::ReceivedMessage &m,
             app_.stopPatch();
         } else if (addr == "/sk/deviceInfo") {
             app_.sendDeviceInfo();
+        } else if (addr == "/ttui/displayPaint") {
+            app_.device().displayPaint();
         } else if (addr == "/ttui/gate") {
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
             unsigned n = getUnsignedArg(arg);
@@ -40,8 +42,6 @@ void SKOscCallback::ProcessMessage(const osc::ReceivedMessage &m,
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
             unsigned dId = getUnsignedArg(arg);
             app_.device().displayClear(dId);
-        } else if (addr == "/ttui/displayPaint") {
-            app_.device().displayPaint();
         } else if (addr == "/ttui/gClear") {
             osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
             unsigned dId = getUnsignedArg(arg);
@@ -162,6 +162,18 @@ void SKOscCallback::ProcessMessage(const osc::ReceivedMessage &m,
             unsigned clr = getUnsignedArg(arg);
             unsigned line = getUnsignedArg(arg);
             app_.device().clearLine(dId,clr, line);
+        } else if (addr == "/ttui/deadband") {
+            osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned v = getUnsignedArg(arg);
+            app_.device().gpioDeadband(v);
+        } else if (addr == "/ttui/smoothing") {
+            osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned v = getUnsignedArg(arg);
+            app_.device().gpioSmoothing(v);
+        } else if (addr == "/ttui/polltime") {
+            osc::ReceivedMessage::const_iterator arg = m.ArgumentsBegin();
+            unsigned v = getUnsignedArg(arg);
+            app_.device().gpioPollTime(v);
         } else {
             std::cerr << "unrecognied msg addr" << addr << std::endl;
         }

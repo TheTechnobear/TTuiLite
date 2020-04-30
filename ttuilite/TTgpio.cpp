@@ -1,4 +1,4 @@
-// this is based on implemention from 
+// this is based on implemention from
 // https://github.com/mxmxmx/terminal_tedium/blob/master/software/OSC%20client/main.c
 
 #include "TTgpio.h"
@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <time.h>
-#include <sys/time.h>  
+#include <sys/time.h>
 #include <stdint.h>
 #include <unistd.h>
 
@@ -16,28 +16,39 @@
 #include <wiringPiSPI.h>
 
 
-
-static constexpr unsigned ADC_SPI_CHANNEL=1;
-static constexpr unsigned ADC_SPI_SPEED=4000000;
-static constexpr unsigned RESOLUTION=4095;
-static constexpr unsigned DEADBAND=2;
-static constexpr unsigned SCALE=4000;
-static constexpr float SCALE_IN=1.0f/(float)SCALE;
+static unsigned SMOOTHING = 1;
+static unsigned DEADBAND = 2;
 
 
-static constexpr unsigned B1=23;
-static constexpr unsigned B2=25;
-static constexpr unsigned B3=24;
-static constexpr unsigned TR1=4;
-static constexpr unsigned TR2=17;
-static constexpr unsigned TR3=14;
-static constexpr unsigned TR4=27;
 
-static constexpr unsigned LED=26;
-static constexpr unsigned GATE1=16;
-static constexpr unsigned GATE2=12;
+static constexpr unsigned ADC_SPI_CHANNEL = 1;
+static constexpr unsigned ADC_SPI_SPEED = 4000000;
+static constexpr unsigned RESOLUTION = 4095;
+static constexpr unsigned SCALE = 4000;
+static constexpr float SCALE_IN = 1.0f / (float)SCALE;
+
+
+static constexpr unsigned B1 = 23;
+static constexpr unsigned B2 = 25;
+static constexpr unsigned B3 = 24;
+static constexpr unsigned TR1 = 4;
+static constexpr unsigned TR2 = 17;
+static constexpr unsigned TR3 = 14;
+static constexpr unsigned TR4 = 27;
+
+static constexpr unsigned LED = 26;
+static constexpr unsigned GATE1 = 16;
+static constexpr unsigned GATE2 = 12;
 
 namespace TTgpio {
+
+void smoothing(unsigned v) {
+    SMOOTHING = v;
+}
+
+void deadband(unsigned v) {
+    DEADBAND = v;
+}
 
 
 void initGPIO() {
@@ -66,47 +77,50 @@ void initGPIO() {
 }
 
 
-uint16_t readADC(int _channel, uint16_t *adc_val){ 
+unsigned readADC(unsigned *adc_val, unsigned n) {
+    uint8_t spi_data[3];
+    unsigned count=0;
+    for (int i=0;i<n;i++) {
 
-      uint8_t spi_data[3];
-      uint16_t result, tmp = *(adc_val + _channel); // previous.
+        uint16_t result, tmp = adc_val[i]; // previous.
 
-      spi_data[0] = 0x06 | (_channel>>2) & 0x01;    // single ended
-      spi_data[1] = _channel<<6;
-      spi_data[2] = 0x00;
+        spi_data[0] = 0x06 | (i >> 2) & 0x01;  // single ended
+        spi_data[1] = i << 6;
+        spi_data[2] = 0x00;
 
-      wiringPiSPIDataRW(ADC_SPI_CHANNEL, spi_data, 3);
+        wiringPiSPIDataRW(ADC_SPI_CHANNEL, spi_data, 3);
 
-      // invert + limit result: 
-      result = SCALE - (((spi_data[1] & 0x0f) << 8) | spi_data[2]);
-      result = result > RESOLUTION ? 0 : result;  
-      
-      if ( (result - tmp) > DEADBAND || (tmp - result) > DEADBAND ) { 
-        *(adc_val + _channel) = result ;
-        return 1;
-      }
-      else {
-        *(adc_val + _channel)  = tmp;
-        return 0;
-      }
+        // invert + limit result:
+        result = SCALE - (((spi_data[1] & 0x0f) << 8) | spi_data[2]);
+        result = result > RESOLUTION ? 0 : result;
+
+        if ( (result - tmp) > DEADBAND || (tmp - result) > DEADBAND ) {
+            adc_val[i] = result ;
+            count++;
+        }
+        else {
+            adc_val[i]  = tmp;
+        }
+    }
+    return count;
 }
 
 
-static uint8_t digiInPins[MAX_DIG_IN] = {B1,B2,B3,TR1,TR2,TR3,TR4};
-static uint8_t digiOutPins[MAX_DIG_OUT]= {LED,GATE1,GATE2};
+static uint8_t digiInPins[MAX_DIG_IN] = {B1, B2, B3, TR1, TR2, TR3, TR4};
+static uint8_t digiOutPins[MAX_DIG_OUT] = {LED, GATE1, GATE2};
 
 
 bool digiRead(unsigned pin) {
-  if(pin<MAX_DIG_IN) {
-    return digitalRead(digiInPins[pin]);
-  }
-  return 0;
+    if (pin < MAX_DIG_IN) {
+        return digitalRead(digiInPins[pin]);
+    }
+    return 0;
 }
 
-void digiWrite(unsigned pin,bool v) {
-  if(pin<MAX_DIG_OUT) {
-    digitalWrite(digiOutPins[pin],v);
-  }
+void digiWrite(unsigned pin, bool v) {
+    if (pin < MAX_DIG_OUT) {
+        digitalWrite(digiOutPins[pin], v);
+    }
 }
 
 }

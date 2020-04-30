@@ -127,6 +127,9 @@ private:
     std::string scOpts_;
     std::string scHome_;
     unsigned gpioPollT_;
+    unsigned gpioSmoothing_;
+    unsigned gpioDeadband_;
+
 
     // listen for osc
     unsigned listenPort_ = 3001;

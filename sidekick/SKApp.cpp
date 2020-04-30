@@ -56,6 +56,8 @@ void SKApp::init(SKPrefs &prefs) {
     sendAddr_ = prefs.getString("sendAddr", "127.0.0.1");
 
     gpioPollT_ = (unsigned) prefs.getInt("gpioPollTime",10000);
+    gpioDeadband_ = (unsigned) prefs.getInt("gpioDeadband",2);
+    gpioSmoothing_ = (unsigned) prefs.getInt("gpioSmoothing",1);
 
     topPatchDir_ = patchDir_;
     topSystemDir_ = systemDir_;
@@ -67,6 +69,9 @@ void SKApp::init(SKPrefs &prefs) {
     device_.addCallback(cb);
     device_.start();
     device_.gpioPollTime(gpioPollT_);
+    device_.gpioDeadband(gpioDeadband_);
+    device_.gpioSmoothing(gpioSmoothing_);
+
 
     startOscServer();
     sendSKOscEvent("start");

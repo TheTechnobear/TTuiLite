@@ -6,10 +6,12 @@ static constexpr unsigned ADC_NUM_CHANNELS=6;
 static constexpr unsigned MAX_DIG_IN = 7;
 static constexpr unsigned MAX_DIG_OUT = 3;
 
-namespace TTgpio {
-  uint16_t readADC(int _channel, uint16_t *adc_val);
-  void initGPIO();
+namespace TTgpio { 
+    void initGPIO();
+    void smoothing(unsigned);
+    void deadband(unsigned);
 
-  bool digiRead(unsigned);
-  void digiWrite(unsigned,bool);
+    unsigned readADC(unsigned *adcarray,unsigned n);
+    bool digiRead(unsigned);
+    void digiWrite(unsigned,bool);
 }
