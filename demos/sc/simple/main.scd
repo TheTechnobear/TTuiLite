@@ -64,8 +64,8 @@ OSCdef( \osc_pot, {
 		},
 		3,{
 		}
-	) // switch
-    ) //if
+	); // switch
+    ); //if
     ~lastV[msg[1]] = msg[2];
 },
 "/ttui/pot",

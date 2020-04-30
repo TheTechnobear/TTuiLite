@@ -53,7 +53,7 @@ OSCdef( \liveConnect, {
 	arg msg, time, addr, recvPort;
 	'connect->'.post;msg[1].post; ' '.post;msg[2].postln;
 	~remote = NetAddr(msg[1].asString, msg[2]); // remote server
-	~sidekick.sendMsg("/ttui/displayClear,0");
+	~sidekick.sendMsg("/ttui/displayClear",0);
 	~sidekick.sendMsg("/ttui/textLine",0,15,0,0, "client connected");
 	~sidekick.sendMsg("/ttui/textLine",0,5,1,0, msg[1].asString ++ ":" ++ msg[2].asString);
 	~sidekick.sendMsg("/ttui/displayPaint");
@@ -167,7 +167,7 @@ OSCdef( \osc_button, {
 	arg msg, time, addr, recvPort;
     'remote->'.post;msg[0].post;msg[1].postln;
 	if(msg[1]==0 && msg[2]==1) {
-		~sidekick.sendMsg("/ttui/displayClear,0");
+		~sidekick.sendMsg("/ttui/displayClear",0);
 	}
 },
 '/ttui/button',recvPort:~rPort);

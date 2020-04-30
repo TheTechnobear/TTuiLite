@@ -89,7 +89,7 @@ OSCdef( \osc_pot, {
 			~density = ~density + (msg[2].asFloat/4096 * 10);
 			~synth.set(\density, ~density);
 			~sidekick.sendMsg("/ttui/clearLine",0,0,1);
-			~sidekick.sendMsg("/ttui/textLine",15,1,0,"Density " ++ ~density.asString);
+			~sidekick.sendMsg("/ttui/textLine",0,15,1,0,"Density " ++ ~density.asString);
 		},
 		1,{
 			~gain = ~gain + (msg[2].asFloat/4096 * 0.1);
@@ -109,8 +109,8 @@ OSCdef( \osc_pot, {
 			~sidekick.sendMsg("/ttui/clearLine",0,0,4);
 			~sidekick.sendMsg("/ttui/textLine",0,15,4,0,"Rate " ++ ~rate.asString);
 		}
-	) // switch
-	) // if
+	);// switch
+	);// if
     ~lastV[msg[1]] = msg[2];
 },
 "/ttui/pot",

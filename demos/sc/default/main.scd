@@ -18,8 +18,9 @@ pot num value
 trig  num value
 
 (from sk/deviceInfo)
-numencoders value
+numpors value
 numbuttons value
+numgateout value
 
 SK OSC messages received /sk prefix
 stop
@@ -40,6 +41,8 @@ gateOut
 ledOut
 
 displayPaint (must be sent for display to be rendered
+
+all excption paint take display id (0,1) as first arg
 displayClear
 
 gClear -  clr
