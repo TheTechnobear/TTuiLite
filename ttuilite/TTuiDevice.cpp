@@ -37,7 +37,7 @@
 #include "TTgpio.h"
 
 static unsigned gpioPollTime_=1000;
-static unsigned gpioSmoothing_=1;
+static unsigned gpioSmoothing_=4;
 static unsigned gpioDeadband_=2;
 
 #ifndef SCREEN_X
@@ -505,8 +505,8 @@ void *process_gpio_func(void *x) {
 
 
 void TTuiDeviceImpl_::processGPIO() {
-    unsigned adcState[ADC_NUM_CHANNELS]; 
-    unsigned prevAdcState[ADC_NUM_CHANNELS]; 
+    int adcState[ADC_NUM_CHANNELS]; 
+    int prevAdcState[ADC_NUM_CHANNELS]; 
 
     bool digInState[MAX_DIG_IN] = {false,false,false,false,false,false,false};
     bool sentDigOutState[MAX_DIG_OUT] = {false,false,false};
@@ -549,21 +549,20 @@ void TTuiDeviceImpl_::processGPIO() {
         }
 
         // adc input
-        if(TTgpio::readADC(adcState,ADC_NUM_CHANNELS)>0) {
-            // any changed, send out update messages
-            for(unsigned i=0;i<ADC_NUM_CHANNELS;i++) {
-                auto prev=prevAdcState[i];
-                if(adcState[i]!=prev) {
-                    TTuiEventMsg msg;
-                    msg.type_ = TTuiEventMsg::N_POT;
-                    msg.id_ = i;
-                    msg.value_ = adcState[i];
-                    eventQueue_.enqueue(msg);
-                }
-                prevAdcState[i]=adcState[i];
+        TTgpio::readADC(adcState,ADC_NUM_CHANNELS);
+        // any changed, send out update messages
+        for(unsigned i=0;i<ADC_NUM_CHANNELS;i++) {
+            auto prev=prevAdcState[i];
+            if(adcState[i]!=prev) {
+                TTuiEventMsg msg;
+                msg.type_ = TTuiEventMsg::N_POT;
+                msg.id_ = i;
+                msg.value_ = adcState[i];
+                eventQueue_.enqueue(msg);
             }
-       }
- 
+            prevAdcState[i]=adcState[i];
+        }
+
         // sleep
         usleep(gpioPollTime_);
     }

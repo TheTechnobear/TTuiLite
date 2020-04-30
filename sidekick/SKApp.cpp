@@ -57,7 +57,7 @@ void SKApp::init(SKPrefs &prefs) {
 
     gpioPollT_ = (unsigned) prefs.getInt("gpioPollTime",10000);
     gpioDeadband_ = (unsigned) prefs.getInt("gpioDeadband",2);
-    gpioSmoothing_ = (unsigned) prefs.getInt("gpioSmoothing",1);
+    gpioSmoothing_ = (unsigned) prefs.getInt("gpioSmoothing",4);
 
     topPatchDir_ = patchDir_;
     topSystemDir_ = systemDir_;

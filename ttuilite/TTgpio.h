@@ -11,7 +11,7 @@ namespace TTgpio {
     void smoothing(unsigned);
     void deadband(unsigned);
 
-    unsigned readADC(unsigned *adcarray,unsigned n);
+    void readADC(int *adcarray,unsigned n);
     bool digiRead(unsigned);
     void digiWrite(unsigned,bool);
 }
