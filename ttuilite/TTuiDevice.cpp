@@ -596,6 +596,7 @@ void TTuiDeviceImpl_::initDisplay() {
             for(unsigned d=0;d<2;d++) {
                 display_[d].begin();
             }
+	    break;
         }
         case TT_zerOrac : {
             // note i2c addresses are flipped on zerOrac
@@ -611,6 +612,7 @@ void TTuiDeviceImpl_::initDisplay() {
                 // invert display
                 display_[d].sendCommand(SSD_Set_Segment_Remap | 0x0);
                 display_[d].sendCommand(SSD1306_Set_Com_Output_Scan_Direction_Normal);            }
+	    break;
         }
 
         default : {

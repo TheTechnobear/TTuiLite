@@ -7,7 +7,9 @@
 static volatile bool keepRunning = 1;
 
 
-TTuiLite::TTuiDevice device;
+//TTuiLite::TTuiDevice device;
+//TTuiLite::TTuiDevice device(TTuiLite::TT_Normal);
+TTuiLite::TTuiDevice device(TTuiLite::TT_zerOrac);
 
 
 #define DISPLAY 0
@@ -124,7 +126,7 @@ int main(int argc, const char *argv[]) {
     
     device.displayClear(0);
     //device.clearRect(0,0,0, 128,10,1);
-    device.textLine(0,15,0,8,"a1 : BasicPoly > main");
+    device.textLine(0,15,0,0,"a1 : BasicPoly");
     funcParam(0,0,0,"Transpose","12     st");
     funcParam(0,1,0,"Cutoff","15000 hz");
     funcParam(0,0,1,"Shape","33",true);
