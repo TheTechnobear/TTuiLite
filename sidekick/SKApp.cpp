@@ -20,7 +20,14 @@
 #include <fstream>
 #include <cJSON.h>
 
+#ifdef ZERORAC
+#define TTTYPE TTuiLite::TT_zerOrac
+#else
+#define TTTYPE TTuiLite::TT_Normal
+#endif
+
 SKApp::SKApp() :
+    device_(TTTYPE),
     sidekickActive_(false),
     selIdx_(0),
     loadOnStartup_(false),

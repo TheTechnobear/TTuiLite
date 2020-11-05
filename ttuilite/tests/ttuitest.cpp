@@ -7,9 +7,13 @@
 static volatile bool keepRunning = 1;
 
 
-//TTuiLite::TTuiDevice device;
-//TTuiLite::TTuiDevice device(TTuiLite::TT_Normal);
-TTuiLite::TTuiDevice device(TTuiLite::TT_zerOrac);
+
+#ifdef ZERORAC
+#define TTTYPE TTuiLite::TT_zerOrac
+#else
+#define TTTYPE TTuiLite::TT_Normal
+#endif
+TTuiLite::TTuiDevice device(TTTYPE);
 
 
 #define DISPLAY 0

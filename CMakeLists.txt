@@ -29,9 +29,24 @@ set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -ffast-math -funroll-loops -fomit-frame-pointer")
 
+
+if(ZERORAC)
+    set(USE_ZERORAC 1)
+else(ZERORAC)
+    set(USE_ZERORAC 0)
+endif(ZERORAC)
+
+
+
 if (SALT)
     set(BELA on)
 endif (SALT)
+
+
+if (PEPPER)
+    set(BELA on)
+endif (PEPPER)
+
 
 if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "^armv6l")
     set(ARM6 on)

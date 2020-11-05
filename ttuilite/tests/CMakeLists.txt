@@ -7,6 +7,11 @@ include_directories (
         "${PROJECT_SOURCE_DIR}/.."
 )
 
+if (USE_ZERORAC)
+    message("Enabling zerOrac")
+    add_definitions(-DZERORAC=1)
+endif()
+
 
 set(TEST_SRC "ttuitest.cpp")
 add_executable(ttuitest ${TEST_SRC})
