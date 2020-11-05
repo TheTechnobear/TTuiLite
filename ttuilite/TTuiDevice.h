@@ -21,9 +21,16 @@ public:
 
 class TTuiDeviceImpl_;
 
+enum TTDevType {
+    TT_Normal,
+    TT_zerOrac
+};
+
 class TTuiDevice {
 public:
-    TTuiDevice();
+
+
+    TTuiDevice(TTDevType type=TT_Normal);
     ~TTuiDevice();
 
     void start();

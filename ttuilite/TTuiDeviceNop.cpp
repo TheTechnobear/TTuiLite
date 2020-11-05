@@ -5,7 +5,7 @@
 namespace TTuiLite {
 
 
-TTuiDevice::TTuiDevice() {
+TTuiDevice::TTuiDevice(TTDevType t) {
     throw std::runtime_error("Unsupported Platform");
 }
 

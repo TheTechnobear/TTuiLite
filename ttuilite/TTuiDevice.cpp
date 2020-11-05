@@ -65,7 +65,7 @@ struct TTuiEventMsg {
 // implementation class
 class TTuiDeviceImpl_ {
 public:
-    TTuiDeviceImpl_();
+    TTuiDeviceImpl_(TTDevType);
     ~TTuiDeviceImpl_();
 
     void start();
@@ -113,6 +113,7 @@ private:
 
 
     bool keepRunning_;
+    TTDevType type_;
 
 
 
@@ -128,8 +129,8 @@ private:
 };
 
 //TTuiDevice proxy
-TTuiDevice::TTuiDevice() {
-    impl_ = new TTuiDeviceImpl_();
+TTuiDevice::TTuiDevice(TTDevType t) {
+    impl_ = new TTuiDeviceImpl_(t);
 }
 
 TTuiDevice::~TTuiDevice() {
@@ -257,7 +258,7 @@ void TTuiDevice::gText(unsigned d, unsigned clr, unsigned x, unsigned y, const s
 
 //// start of IMPLEMENTATION
 
-TTuiDeviceImpl_::TTuiDeviceImpl_() : eventQueue_(MAX_EVENTS) {
+TTuiDeviceImpl_::TTuiDeviceImpl_(TTDevType t) : type_(t), eventQueue_(MAX_EVENTS) {
 }
 
 TTuiDeviceImpl_::~TTuiDeviceImpl_() {
@@ -584,19 +585,43 @@ void TTuiDeviceImpl_::deinitGPIO() {
 
 
 void TTuiDeviceImpl_::initDisplay() {
+    switch(type_) {
+        case TT_Normal : {
+            if(! display_[0].init(OLED_I2C_RESET,OLED_SH1106_I2C_128x64,(uint8_t) 60 )) {
+                fprintf(stderr,"unable to open display 0");
+            }
+            if( ! display_[1].init(OLED_I2C_RESET,OLED_SH1106_I2C_128x64, (uint8_t) 61 )) {
+                fprintf(stderr,"unable to open display 1");
+            }
+            for(unsigned d=0;d<2;d++) {
+                display_[d].begin();
+            }
+        }
+        case TT_zerOrac : {
+            // note i2c addresses are flipped on zerOrac
+            if(! display_[0].init(OLED_I2C_RESET,OLED_ADAFRUIT_I2C_128x64,  (uint8_t) 61 )) {
+                fprintf(stderr,"unable to open display 0");
+            }
+            if( ! display_[1].init(OLED_I2C_RESET,OLED_ADAFRUIT_I2C_128x64, (uint8_t) 60 )) {
+                fprintf(stderr,"unable to open display 1");
+            }
 
+            for(unsigned d=0;d<2;d++) {
+                display_[d].begin();
+                // invert display
+                display_[d].sendCommand(SSD_Set_Segment_Remap | 0x0);
+                display_[d].sendCommand(SSD1306_Set_Com_Output_Scan_Direction_Normal);            }
+        }
 
-    if(! display_[0].init(OLED_I2C_RESET,OLED_SH1106_I2C_128x64,(uint8_t) 60 )) {
-        fprintf(stderr,"unable to open display 0");
+        default : {
+            fprintf(stderr,"unknown device type");
+            return;
+        } 
     }
-    display_[0].begin();
+
     displayClear(0);
     display_[0].display();
 
-    if( ! display_[1].init(OLED_I2C_RESET,OLED_SH1106_I2C_128x64, (uint8_t) 61 )) {
-        fprintf(stderr,"unable to open display 1");
-    }
-    display_[1].begin();
     displayClear(1);
     display_[1].display();
   
