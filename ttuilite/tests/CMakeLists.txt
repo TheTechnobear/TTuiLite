@@ -15,7 +15,13 @@ endif()
 
 set(TEST_SRC "ttuitest.cpp")
 add_executable(ttuitest ${TEST_SRC})
-target_link_libraries (ttuitest ttuilite pthread wiringPi)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin") 
+	target_link_libraries (ttuitest ttuilite pthread)
+else()
+	target_link_libraries (ttuitest ttuilite pthread wiringPi)
+endif()
+
 #target_link_libraries (ttuitest uilite ${LIBCAIRO} pthread )
 
 #if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)

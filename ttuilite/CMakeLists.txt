@@ -16,10 +16,10 @@ set(TT_H
 	TTuiDevice.h
         )
 
-if(UNIX AND NOT APPLE)
-    set(TT_SRC	TTuiDevice.cpp TTgpio.cpp TTgpio.h TTuiDevice.h)
-else() 
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin") 
     set(TT_SRC  TTuiDeviceNop.cpp )
+else() 
+    set(TT_SRC  TTuiDevice.cpp TTgpio.cpp TTgpio.h TTuiDevice.h)
 endif()
 
 
@@ -33,10 +33,10 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
 endif ()
 
 
-if(UNIX AND NOT APPLE)
-    target_link_libraries(ttuilite "dl" "pthread" arduiPi_OLED i2c)
-else() 
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin") 
     target_link_libraries(ttuilite "dl" "pthread")
+else() 
+    target_link_libraries(ttuilite "dl" "pthread" arduiPi_OLED i2c)
 endif()
 
 target_include_directories(ttuilite PUBLIC

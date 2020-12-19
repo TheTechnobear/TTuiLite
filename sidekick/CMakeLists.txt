@@ -17,5 +17,13 @@ set(SK_SRC
     SKOscCallback.cpp SKOscCallback.h
     )
 add_executable(sidekick ${SK_SRC})
-target_link_libraries(sidekick ttuilite cjson pthread oscpack moodycamel wiringPi)
+
+
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin") 
+	target_link_libraries(sidekick ttuilite cjson pthread oscpack moodycamel)
+else()
+	target_link_libraries(sidekick ttuilite cjson pthread oscpack moodycamel wiringPi)
+endif()
+
 
